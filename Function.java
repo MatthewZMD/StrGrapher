@@ -31,13 +31,18 @@ public class Function {
 	}
 	
 	public static double calculate(String f,double x,double y,double z){
-        f = removeSpace(f);
-		System.out.println(f);
-		f = addX(f,0);
-		System.out.println(f);
-		f = fill(f,0);
-		System.out.println(f);
-		return calculation(f,x,y,z);
+		try {
+			f = removeSpace(f);
+//		System.out.println(f);
+			f = addX(f, 0);
+//		System.out.println(f);
+			f = fill(f, 0);
+//		System.out.println(f);
+			return calculation(f, x, y, z);
+		}catch(Exception e){
+//			System.out.println("Invalid Function");
+			return 0;
+		}
 	}
 
 	private  static String removeSpace(String f){
@@ -64,7 +69,7 @@ public class Function {
 					value = Double.parseDouble(f.substring(index+1));
 				}
 			}
-			
+
 			if(index==0) return Double.parseDouble(f);
 			for(int j = index-1;j>=0;j--){
 				if(isOperator(f,j)){
@@ -78,20 +83,30 @@ public class Function {
 				}
 			}
 			if(f.substring(preIndex+1,index).length()>0){
-				preValue = Double.parseDouble(f.substring(preIndex+1,index));
+//				if(f.indexOf("E")!=-1){
+//					System.out.println(f+" "+x);
+//					f = f.substring(preIndex + 1,index);
+//					String exp = f.substring(f.indexOf("E")+1);
+//					preValue = Double.parseDouble(f.substring(0,f.indexOf("E")))*Math.pow(10,Double.parseDouble(exp));
+//				}else{
+					preValue = Double.parseDouble(f.substring(preIndex + 1, index));
+//				}
 			}else{
-//				System.out.println(true);
 				preValue = Double.parseDouble(f.substring(index));
 				value = 0;
+//				System.out.println(true);
 			}
 			
-//			System.out.println(preIndex+" "+preValue+" "+index+" "+value);
-			
-			
 			if(preIndex==-1){
-				return operation(Double.parseDouble(f.substring(0,index)),value,f.charAt(index));
+//				System.out.println(f+" "+index+" "+f.substring(0,index));
+//				if(f.indexOf("E")!=-1){
+//					return Double.parseDouble(f.substring(0,f.indexOf("E")))*Math.pow(10,Double.parseDouble(f.substring(f.indexOf("E")+1)));
+//				}else{
+//				System.out.println(f+" "+f.substring(preIndex+1,index)+" & "+value+" & " +index);
+					return operation(f.substring(0,index),Double.toString(value),f.charAt(index));
+//				}
 			}else{
-				return operation(operation(calculation(f.substring(0,preIndex),x,y,z),preValue,f.charAt(preIndex)),value,f.charAt(index));
+				return operation(Double.toString(operation(Double.toString(calculation(f.substring(0,preIndex),x,y,z)),Double.toString(preValue),f.charAt(preIndex))),Double.toString(value),f.charAt(index));
 			}
 		}else if(f.length()==1)return Double.parseDouble(f);
 		else return 0;
@@ -229,13 +244,25 @@ public class Function {
 		}else return f;
 	}
 	
-	private static double operation(double value1,double value2,char operator){
+	private static double operation(String v1,String v2,char operator){
+//		System.out.println(v1+" "+v2);
+		double value1,value2;
+		if(v1.indexOf("E")!=-1){
+			value1 = Double.parseDouble(v1.substring(0,v1.indexOf("E")))*Math.pow(10,Double.parseDouble(v1.substring(v1.indexOf("E")+1)));
+			value2 = Double.parseDouble(v2);
+		}else if(v2.indexOf("E")!=-1){
+			value1 = Double.parseDouble(v1);
+			value2 = Double.parseDouble(v2.substring(0,v2.indexOf("E")))*Math.pow(10,Double.parseDouble(v2.substring(v2.indexOf("E")+1)));
+		}else{
+			value1 = Double.parseDouble(v1);
+			value2 = Double.parseDouble(v2);
+		}
 //		System.out.println("=> "+value1+" "+operator+" "+value2);
 		if(operator=='+') return value1+value2;
 		else if(operator=='-') return value1-value2;
-		else if(operator=='*') return value1 * value2;
-		else if(operator=='/') return value1 / value2;
-		else if(operator=='^') return Math.pow(value1, value2);
+		else if(operator=='*') return value1 * value2;//(double)Math.round(value1 * value2 * 100000000) / 100000000;
+		else if(operator=='/') return value1 / value2;//(double)Math.round(value1 / value2 * 100000000) / 100000000;
+		else if(operator=='^') return Math.pow(value1, value2);//(double)Math.round(Math.pow(value1, value2) * 100000000) / 100000000;
 		else return 0;
 	}
 
@@ -243,7 +270,11 @@ public class Function {
 		char[]operators = new char[]{'+','-','*','/','^','(',')'};
 		for(char o : operators){
 			if(function.charAt(index)==o){
-				return true;
+				if(index>=1&&function.charAt(index-1)=='E'){
+					return false;
+				}else{
+					return true;
+				}
 			}
 		}
 		return false;
