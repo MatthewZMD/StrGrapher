@@ -1,9 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.event.*;
 
 /**
  * Created by Matthew on 2016-11-27.
@@ -24,14 +21,21 @@ public class Grapher extends JFrame{
         getContentPane().add(panel);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         addKeyListener(new keyListener());
-
+        addMouseWheelListener(new mouseScroller());
         functionField = new JTextField(10);
-        xMin = new JTextField("-100");
-        xMax = new JTextField("100");
-        yMin = new JTextField("-100");
-        yMax = new JTextField("100");
+        functionField.addKeyListener(new keyListener());
+        functionField.requestFocus();
+        xMin = new JTextField("-100.0");
+        xMin.addKeyListener(new keyListener());
+        xMax = new JTextField("100.0");
+        xMax.addKeyListener(new keyListener());
+        yMin = new JTextField("-100.0");
+        yMin.addKeyListener(new keyListener());
+        yMax = new JTextField("100.0");
+        yMax.addKeyListener(new keyListener());
         button =new JButton("DRAW");
         button.addActionListener(new buttonListener());
+        button.addKeyListener(new keyListener());
         panel.add(new JLabel("f(x) = "));
         panel.add(functionField);
         panel.add(new JLabel("   "));
@@ -62,23 +66,23 @@ public class Grapher extends JFrame{
 //        super.paint(g);
         super.paintComponents(g);
         double x = leftX,y,y2;
-        g.drawLine(0,vtoY(0),width,vtoY(0));
-        g.drawLine(vtoX(0),0,vtoX(0),height);
+        g.drawLine(0,(int)vtoY(0),width,(int)vtoY(0));
+        g.drawLine((int)vtoX(0),0,(int)vtoX(0),height);
         for(int w = 0;w<width;w++){
             y = Function.calculate(function,x,0,0);
             y2 = Function.calculate(function,(x+dx),0,0);
             if(y>=downY&&y<=upY&&y2>=downY&&y2<=upY) {
 //                System.out.println(x+" "+y+" "+(x+dx)+" "+y2);
-                g.drawLine(w, vtoY(y), w + 1, vtoY(y2));
+                g.drawLine(w, (int)vtoY(y), w + 1, (int)vtoY(y2));
             }
             x+=dx;
         }
     }
 
-    private int vtoX(double x){
+    private double vtoX(double x){
         double countX = leftX;
         for(int w = 0;w<width;w++) {
-            if (x > countX - dx && x < countX + dx) {
+            if (x >= countX - dx && x <= countX + dx) {
                 return w;
             }
             countX += dx;
@@ -86,10 +90,10 @@ public class Grapher extends JFrame{
         return (int)x;
     }
 
-    private int vtoY(double y){
+    private double vtoY(double y){
         double countY = downY;
         for(int h = height;h>=0;h--) {
-            if (y > countY - dh && y < countY + dh) {
+            if (y >= countY - dh && y <= countY + dh) {
                 return h;
             }
             countY += dh;
@@ -97,7 +101,7 @@ public class Grapher extends JFrame{
         return (int)y;
     }
 
-    private static void sync(){
+    protected static void sync(){
         function = functionField.getText();
         try {
             leftX = Double.parseDouble(xMin.getText());
@@ -108,68 +112,108 @@ public class Grapher extends JFrame{
         }finally {
             dx = (rightX-leftX)/width;// dx/pixel
             dh = (upY-downY)/height;// dy/pixel
+//            changeX=dx*100;
+//            changeY=dh*100;
         }
     }
 
     private class buttonListener implements ActionListener {
         public void actionPerformed(ActionEvent event)  {
-            //            sync();
+//            sync();
             changed = true;
         }
     }
 
     private class keyListener implements KeyListener{
+        double changeX,changeY;
+        @Override
+        public void keyPressed(KeyEvent e) {
+            //Get the key pressed
+            int key = e.getKeyCode();
+            if(e.getSource()==button){
+                if(key==KeyEvent.VK_RIGHT){
+                    changeX = dx*10;
+                    leftX+=changeX;
+                    xMin.setText(Double.toString(leftX));
+                    rightX+=changeX;
+                    xMax.setText(Double.toString(rightX));
+                    changed = true;
+                    sync();
+                }else if(key==KeyEvent.VK_LEFT){
+                    changeX = dx*10;
+                    leftX-=changeX;
+                    xMin.setText(Double.toString(leftX));
+                    rightX-=changeX;
+                    xMax.setText(Double.toString(rightX));
+                    changed = true;
+                    sync();
+                }else if(key==KeyEvent.VK_UP){
+                    changeY = dh*10;
+                    upY+=changeY;
+                    yMax.setText(Double.toString(upY));
+                    downY+=changeY;
+                    yMin.setText(Double.toString(downY));
+                    changed = true;
+                    sync();
+                }else if(key==KeyEvent.VK_DOWN){
+                    changeY = dh*10;
+                    upY-=changeY;
+                    yMax.setText(Double.toString(upY));
+                    downY-=changeY;
+                    yMin.setText(Double.toString(downY));
+                    changed = true;
+                    sync();
+                }
+            }else{
+                if(key==KeyEvent.VK_ENTER){
+                    changed = true;
+                    sync();
+                    button.requestFocus();
+                }
+            }
+        }
 
         @Override
         public void keyTyped(KeyEvent e) {
 
-        }
-
-        @Override
-        public void keyPressed(KeyEvent e) {
-            System.out.println(true);
-            //Get the key pressed
-            int key = e.getKeyCode();
-            int changeX = vtoX(dx*10);
-            int changeY = vtoY(dh*10);
-            if(key==KeyEvent.VK_RIGHT){
-                leftX+=changeX;
-                rightX+=changeX;
-                changed = true;
-                System.out.println("right");
-                xMin.setText(Double.toString(leftX));
-                xMax.setText(Double.toString(rightX));
-            }
-            if(key==KeyEvent.VK_LEFT){
-                leftX-=changeX;
-                rightX-=changeX;
-                changed = true;
-                System.out.println("left");
-                xMin.setText(Double.toString(leftX));
-                xMax.setText(Double.toString(rightX));
-            }
-            if(key==KeyEvent.VK_UP){
-                upY+=changeY;
-                downY+=changeY;
-                changed = true;
-                System.out.println("up");
-                yMax.setText(Double.toString(upY));
-                yMin.setText(Double.toString(downY));
-            }
-            if(key==KeyEvent.VK_DOWN){
-                upY-=changeY;
-                downY-=changeY;
-                changed = true;
-                System.out.println("down");
-                yMax.setText(Double.toString(upY));
-                yMin.setText(Double.toString(downY));
-            }
-            sync();
-        }
-
+    }
         @Override
         public void keyReleased(KeyEvent e) {
-            System.out.println(false);
+//            System.out.println(false);
+        }
+    }
+
+    private class mouseScroller implements MouseWheelListener{
+        double changeX,changeY;
+        @Override
+        public void mouseWheelMoved(MouseWheelEvent e) {
+            changeX = dx*10;
+            changeY = dh*10;
+            if(e.getWheelRotation()>0){
+//                System.out.println("zoom out");
+                leftX-=changeX;
+                xMin.setText(Double.toString(leftX));
+                rightX+=changeX;
+                xMax.setText(Double.toString(rightX));
+                upY-=changeY;
+                yMax.setText(Double.toString(upY));
+                downY+=changeY;
+                yMin.setText(Double.toString(downY));
+                changed = true;
+                sync();
+            }else if(e.getWheelRotation()<0){
+//                System.out.println("zoom in");
+                leftX+=changeX;
+                xMin.setText(Double.toString(leftX));
+                rightX-=changeX;
+                xMax.setText(Double.toString(rightX));
+                upY+=changeY;
+                yMax.setText(Double.toString(upY));
+                downY-=changeY;
+                yMin.setText(Double.toString(downY));
+                changed = true;
+                sync();
+            }
         }
     }
 }
