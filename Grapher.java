@@ -9,19 +9,20 @@ public class Grapher extends JFrame{
     private static double leftX,rightX,upY,downY,dx,dh;
     public static int height = 800,width = 1200;
     public static String function ="";
-
+    public static Grapher graph;
     public static JTextField functionField,xMin,xMax,yMin,yMax;
     public static JButton button;
     public static boolean changed = false;
 
     public Grapher(){
-        setSize(width,height);
-        setResizable(false);
+        setSize(1200,800);
+//        setResizable(false);
         JPanel panel=new JPanel();
         getContentPane().add(panel);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        addKeyListener(new keyListener());
+//        addKeyListener(new keyListener());
         addMouseWheelListener(new mouseScroller());
+        addMouseMotionListener(new mouseMotionListener());
         functionField = new JTextField(10);
         functionField.addKeyListener(new keyListener());
         functionField.requestFocus();
@@ -51,7 +52,7 @@ public class Grapher extends JFrame{
     }
 
     public static void main(String []args){
-        Grapher graph =new Grapher();
+        graph = new Grapher();
         graph.setVisible(true);
         do{
             sync();
@@ -103,6 +104,8 @@ public class Grapher extends JFrame{
 
     protected static void sync(){
         function = functionField.getText();
+        width = graph.getWidth();
+        height = graph.getHeight();
         try {
             leftX = Double.parseDouble(xMin.getText());
             rightX = Double.parseDouble(xMax.getText());
@@ -126,13 +129,14 @@ public class Grapher extends JFrame{
 
     private class keyListener implements KeyListener{
         double changeX,changeY;
+        int factor = 10;
         @Override
         public void keyPressed(KeyEvent e) {
             //Get the key pressed
             int key = e.getKeyCode();
             if(e.getSource()==button){
                 if(key==KeyEvent.VK_RIGHT){
-                    changeX = dx*10;
+                    changeX = dx*factor;
                     leftX+=changeX;
                     xMin.setText(Double.toString(leftX));
                     rightX+=changeX;
@@ -140,15 +144,16 @@ public class Grapher extends JFrame{
                     changed = true;
                     sync();
                 }else if(key==KeyEvent.VK_LEFT){
-                    changeX = dx*10;
+                    changeX = dx*factor;
                     leftX-=changeX;
                     xMin.setText(Double.toString(leftX));
                     rightX-=changeX;
                     xMax.setText(Double.toString(rightX));
                     changed = true;
                     sync();
-                }else if(key==KeyEvent.VK_UP){
-                    changeY = dh*10;
+                }
+                if(key==KeyEvent.VK_UP){
+                    changeY = dh*factor;
                     upY+=changeY;
                     yMax.setText(Double.toString(upY));
                     downY+=changeY;
@@ -156,7 +161,7 @@ public class Grapher extends JFrame{
                     changed = true;
                     sync();
                 }else if(key==KeyEvent.VK_DOWN){
-                    changeY = dh*10;
+                    changeY = dh*factor;
                     upY-=changeY;
                     yMax.setText(Double.toString(upY));
                     downY-=changeY;
@@ -187,8 +192,9 @@ public class Grapher extends JFrame{
         double changeX,changeY;
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
-            changeX = dx*10;
-            changeY = dh*10;
+            changeX = dx*5;
+            changeY = dh*5;
+//            System.out.println(dx+" "+dh);
             if(e.getWheelRotation()>0){
 //                System.out.println("zoom out");
                 leftX-=changeX;
@@ -214,6 +220,67 @@ public class Grapher extends JFrame{
                 changed = true;
                 sync();
             }
+        }
+    }
+
+    private class mouseMotionListener implements MouseMotionListener{
+        double changeX,changeY;
+        int preX,preY,x=0,y=0;
+        int factor,limit = 20;
+        int dxMouse,dyMouse;
+        @Override
+        public void mouseDragged(MouseEvent e) {
+//            System.out.println(x+"-"+y+"/"+preX+"-"+preY);
+            preX = x;
+            preY = y;
+            x = e.getX();
+            y = e.getY();
+            dxMouse = x-preX;
+            dyMouse = y-preY;
+//            System.out.println(dxMouse+" "+dyMouse);
+            if(dxMouse<0){
+                factor = Math.min(Math.abs(dxMouse)/3,limit);
+                changeX = dx*factor;
+                leftX+=changeX;
+                xMin.setText(Double.toString(leftX));
+                rightX+=changeX;
+                xMax.setText(Double.toString(rightX));
+                changed = true;
+                sync();
+            }else if(dxMouse>0){
+                factor = Math.min(Math.abs(dxMouse)/3,limit);
+                changeX = dx*factor;
+                leftX-=changeX;
+                xMin.setText(Double.toString(leftX));
+                rightX-=changeX;
+                xMax.setText(Double.toString(rightX));
+                changed = true;
+                sync();
+            }
+            if(dyMouse>0){
+                factor = Math.min(Math.abs(dyMouse)/3,limit);
+                changeY = dh*factor;
+                upY+=changeY;
+                yMax.setText(Double.toString(upY));
+                downY+=changeY;
+                yMin.setText(Double.toString(downY));
+                changed = true;
+                sync();
+            }else if(dyMouse<0){
+                factor = Math.min(Math.abs(dyMouse)/3,limit);
+                changeY = dh*factor;
+                upY-=changeY;
+                yMax.setText(Double.toString(upY));
+                downY-=changeY;
+                yMin.setText(Double.toString(downY));
+                changed = true;
+                sync();
+            }
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+
         }
     }
 }
