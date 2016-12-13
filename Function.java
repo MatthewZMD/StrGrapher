@@ -33,13 +33,14 @@ public class Function {
 	public static double calculate(String f,double x,double y,double z){
 		try {
 			f = removeSpace(f);
-//		System.out.println(f);
+//			System.out.println(f);
 			f = addX(f, 0);
-//		System.out.println(f);
+//			System.out.println(f);
 			f = fill(f, 0);
-//		System.out.println(f);
+//			System.out.println(f);
 			return calculation(f, x, y, z);
 		}catch(Exception e){
+//			e.printStackTrace();
 //			System.out.println("Invalid Function");
 			return 0;
 		}

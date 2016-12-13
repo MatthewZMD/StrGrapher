@@ -239,7 +239,7 @@ public class Grapher extends JFrame{
             dyMouse = y-preY;
 //            System.out.println(dxMouse+" "+dyMouse);
             if(dxMouse<0){
-                factor = Math.min(Math.abs(dxMouse)/3,limit);
+                factor = Math.min(Math.abs(dxMouse)/2,limit);
                 changeX = dx*factor;
                 leftX+=changeX;
                 xMin.setText(Double.toString(leftX));
@@ -248,7 +248,7 @@ public class Grapher extends JFrame{
                 changed = true;
                 sync();
             }else if(dxMouse>0){
-                factor = Math.min(Math.abs(dxMouse)/3,limit);
+                factor = Math.min(Math.abs(dxMouse)/2,limit);
                 changeX = dx*factor;
                 leftX-=changeX;
                 xMin.setText(Double.toString(leftX));
@@ -258,7 +258,7 @@ public class Grapher extends JFrame{
                 sync();
             }
             if(dyMouse>0){
-                factor = Math.min(Math.abs(dyMouse)/3,limit);
+                factor = Math.min(Math.abs(dyMouse)/2,limit);
                 changeY = dh*factor;
                 upY+=changeY;
                 yMax.setText(Double.toString(upY));
@@ -267,7 +267,7 @@ public class Grapher extends JFrame{
                 changed = true;
                 sync();
             }else if(dyMouse<0){
-                factor = Math.min(Math.abs(dyMouse)/3,limit);
+                factor = Math.min(Math.abs(dyMouse)/2,limit);
                 changeY = dh*factor;
                 upY-=changeY;
                 yMax.setText(Double.toString(upY));
