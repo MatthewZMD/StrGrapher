@@ -20,7 +20,6 @@ public class Grapher extends JFrame{
         JPanel panel=new JPanel();
         getContentPane().add(panel);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-//        addKeyListener(new keyListener());
         addMouseWheelListener(new mouseScroller());
         addMouseMotionListener(new mouseMotionListener());
         functionField = new JTextField(10);
