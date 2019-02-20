@@ -9,19 +9,19 @@ public class Function {
 			System.out.print("Enter x,y,z-values if exist (x,y,z): ");
 			String variables = input.nextLine();
 			try{
-				x = calculate(variables.split(",")[0],x,y,z);
+				x = fullCalculation(variables.split(",")[0],x,y,z);
 			}catch(Exception e){ x = 0;}
 			try{
-				y = calculate(variables.split(",")[1],x,y,z);
+				y = fullCalculation(variables.split(",")[1],x,y,z);
 			}catch(Exception e){ y = 0;}
 			try{
-				z = calculate(variables.split(",")[2],x,y,z);
+				z = fullCalculation(variables.split(",")[2],x,y,z);
 			}catch(Exception e){ z = 0;}
 			System.out.print("f = ");
 			String f = input.nextLine();
-			System.out.println("f(x,y,z) = "+calculate(f,x,y,z));
+			System.out.println("f(x,y,z) = "+fullCalculation(f,x,y,z));
 			try{
-//			System.out.println("Full: "+calculation(f,x,y,z));
+//			System.out.println("fullCalculation: "+calculate(f,x,y,z));
 			}catch(Exception e){}
 			System.out.print("Y/N - Use the Program Again: ");
 			String choice = input.nextLine();
@@ -29,21 +29,12 @@ public class Function {
 		}
 		input.close();
 	}
-	
-	public static double calculate(String f,double x,double y,double z){
-		try {
-			f = removeSpace(f);
-//			System.out.println(f);
-			f = addX(f, 0);
-//			System.out.println(f);
-			f = fill(f, 0);
-//			System.out.println(f);
-			return calculation(f, x, y, z);
-		}catch(Exception e){
-//			e.printStackTrace();
-//			System.out.println("Invalid Function");
-			return 0;
-		}
+	public static String prepare(String f){
+		return fill(addX(removeSpace(f), 0), 0);
+	}
+
+	public static double fullCalculation(String f,double x,double y,double z){
+		return calculate(prepare(f), x, y, z);
 	}
 
 	private  static String removeSpace(String f){
@@ -56,7 +47,8 @@ public class Function {
         }
     }
 	
-	private static double calculation(String f,double x,double y,double z){
+	public static double calculate(String f,double x,double y,double z){
+//		System.out.println(f);
 		f = substitute(f,x,y,z);
 //		System.out.println(f);
 		double preValue = 0,value = 0;
@@ -107,7 +99,7 @@ public class Function {
 					return operation(f.substring(0,index),Double.toString(value),f.charAt(index));
 //				}
 			}else{
-				return operation(Double.toString(operation(Double.toString(calculation(f.substring(0,preIndex),x,y,z)),Double.toString(preValue),f.charAt(preIndex))),Double.toString(value),f.charAt(index));
+				return operation(Double.toString(operation(Double.toString(calculate(f.substring(0,preIndex),x,y,z)),Double.toString(preValue),f.charAt(preIndex))),Double.toString(value),f.charAt(index));
 			}
 		}else if(f.length()==1)return Double.parseDouble(f);
 		else return 0;
@@ -136,12 +128,13 @@ public class Function {
 						j = f.length();
 					}
 				}
-				double result = calculation(f.substring(i+1,countB),x,y,z);
+				double result = calculate(f.substring(i+1,countB),x,y,z);
 //				System.out.println("Result: "+result+" "+(i+1)+" "+countB);
 				newF+=result;
 				i = countB;
 				countB = 0;
 			}else newF+=f.charAt(i);
+//			System.out.println(newF);
 		}
 //		System.out.println(newF);
 		newF = removeDuplicate(newF);

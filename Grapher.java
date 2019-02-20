@@ -63,19 +63,22 @@ public class Grapher extends JFrame{
     }
 
     public void paint(Graphics g) {
-//        super.paint(g);
         super.paintComponents(g);
         double x = leftX,y,y2;
+        g.setColor(new Color(160,160,160));
         g.drawLine(0,(int)vtoY(0),width,(int)vtoY(0));
         g.drawLine((int)vtoX(0),0,(int)vtoX(0),height);
-        for(int w = 0;w<width;w++){
-            y = Function.calculate(function,x,0,0);
-            y2 = Function.calculate(function,(x+dx),0,0);
-            if(y>=downY&&y<=upY&&y2>=downY&&y2<=upY) {
+        g.setColor(new Color(0,0,153));
+        if(!function.equals("")){
+            for(int w = 0;w<width;w++){
+                y = Function.calculate(function,x,0,0);
+                y2 = Function.calculate(function,(x+dx),0,0);
+                if(y>=downY&&y<=upY&&y2>=downY&&y2<=upY) {
 //                System.out.println(x+" "+y+" "+(x+dx)+" "+y2);
-                g.drawLine(w, (int)vtoY(y), w + 1, (int)vtoY(y2));
+                    g.drawLine(w, (int)vtoY(y), w + 1, (int)vtoY(y2));
+                }
+                x+=dx;
             }
-            x+=dx;
         }
     }
 
@@ -121,8 +124,9 @@ public class Grapher extends JFrame{
 
     private class buttonListener implements ActionListener {
         public void actionPerformed(ActionEvent event)  {
-//            sync();
+            functionField.setText(Function.prepare(function));
             changed = true;
+            sync();
         }
     }
 
@@ -170,8 +174,10 @@ public class Grapher extends JFrame{
                 }
             }else{
                 if(key==KeyEvent.VK_ENTER){
+                    functionField.setText(Function.prepare(function));
                     changed = true;
                     sync();
+//                    x^3/3^ep
                     button.requestFocus();
                 }
             }
